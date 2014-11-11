@@ -1,0 +1,69 @@
+
+\chapter[\textbf{Bucky Start Mode Capabilities}]{: \ Bucky Start Mode Capabilities}
+\label{app:restart}
+The Bucky start mode capabilities allow users to stop and restart simulations at whim. This allows minor changes to be made to the code or the input file without the need for repeating the whole simulation. This functionality is controlled by the user using the two namelist restart variables: \textbf{mstart} and \textbf{ncycrs}, which specify the start mode and the cycle number, respectively (see Fig.\,\ref{fig:bucky.inp}).
+
+\sidecaptionvpos{figure}{c}
+
+\begin{SCfigure}[][h!]	
+
+	\centering
+	\fbox{
+		\parbox{.4\linewidth}{ \texttt{
+			\\
+			\$rstart  \\ 
+			\phantom \ \ \ \ \ \ \ \ \ mstart \ = \ 2  \newline
+			\phantom \ \ \ \ \ \ \ \ \ ncycrs \ = \ 200  \\
+			\$end \\
+			\\ 
+			\$input \\
+			\phantom \ \ \ \ \ \ \ \ \ nmax \ \ \ = \ 1300 \\
+			\phantom \ \ \ \ \ \ \ \ \ tmax \ \ \ = \ 5.0E-09 \\
+			\phantom \ \ \ \ \ \ \ \ \ iorest \ = \ 500 \\
+ 			\$end
+		} \vspace{.15in} } 
+	}
+
+\caption[A Bucky Input File]{ \\ Example 'bucky.inp' File \\ \captiontitlefinal{\textmd{that shows the common structure for using the start mode functionality.  \\ \\ Inside the \textbf{\$rstart...end\$} block, \\ mstart and ncycrs are changed.  \\ Inside the \textbf{\$input...end\$} block, below that, every other variable is changed.* \\ \\ \small{*\,For this specific example, the input deck is short because it is for a restart run that does not need to specify the initial conditions of the problem. } } } }
+	\label{fig:bucky.inp}
+\end{SCfigure}
+
+\sidecaptionvpos{figure}{b}
+
+\subsection{\texttt{[ 0]} \ -- \ Standard Mode}
+
+In Standard Mode, when mstart = 0, the current simulation is treated as an initial run.  This means that it will overwrite output files, e.g. bucky.h5 and bucky.out.  It also means that the code treats its input file as if it had no restart block at all.
+
+\subsection{\texttt{[ 1]} \ -- \ Restart Mode }
+
+In Restart Mode, when mstart = 1, the current simulation starts from a cycle found in the restart logs of either \textbf{bucky.cur\_restart} or \textbf{bucky.new\_restart}.  Restart logs are created at every \textbf{\textit{iorest}} cycles when the code is in either the standard mode or the restart mode.
+
+\pagebreak
+
+The cycle that the restart mode loads from is the closest one to \textbf{ncycrs} in either bucky.cur\_restart or bucky.new\_restart.  This means that if ncycrs is greater than or equal to the first log in bucky.cur\_restart, the algorithm chooses the closest cycle in either of the two files and loads from it.  Additionally, if ncycrs is less than or equal to zero, the code short-circuits to loading the newest log in bucky.new\_restart.
+
+When starting a new restart, two things are done.  First, if the current log was found in bucky.new\_restart, bucky.new\_restart is relinked as bucky.cur\_restart before being read. Second, the base names of the output files are changed to reflect an advancement in restart number.  For example, after the initial run, the first restart changes the text output file from bucky.out to bucky1.out; on the second restart, the text output file changes from bucky1.out to bucky2.out.
+
+\subsection{\texttt{[ 2]} \ -- \ Automatic Mode  }
+
+In Automatic Mode, when mstart = 2, a simulation is allowed to efficiently advance to completion, even in the face of frequent and unprompted restarts.  This mode was originally designed for HTCondor's vanilla version, which is discussed in Section 4.2.  The main difference between Restart Mode and Automatic Mode is that Restart Mode has files filled with restart logs written every iorest cycles, while Automatic Mode uses checkpoints updated every iorest cycles.  
+
+This difference in nomenclature stems from the fact that checkpoint files only have one restart log a piece.  Bucky therefore keeps three checkpoint files in Automatic Mode: a backup file with the initial conditions of the simulation set (bucky.restart\_0) and two leapfrog files that have their logs updated every other time (bucky.restart\_1 and bucky.restart\_2).  Additionally, if bucky.restart\_0 has either been corrupted or deleted, a simulation in this mode will start over from the beginning.  
+
+\subsection{\texttt{[10]} \ -- \ Merge Mode  }
+
+In Merge Mode, when mstart = 10, Bucky merges all the output files made by Restart Mode into the main output files (up to the \textbf{ncycrs} cycle or to the most recent cycle if specified, otherwise).  This means that \mbox{bucky1.h5 , \ldots \ , buckyN.h5} as well as \mbox{bucky1.out , \ldots \ , buckyN.out} are merged into bucky.h5 and bucky.out , respectively. 
+
+After this mode, the restart logs are wiped and an updated restart file is made in their place.  This is why Automatic Mode calls it after it has completed its simulation.  Automatic Mode does not back up its files like Restart Mode does because it has no way to go back more than two checkpoint logs ago, rendering labeled output files useless.
+
+\subsection{Loading Multiple Input Decks from One File }
+
+Bucky also has the capability of loading multiple input decks from within one file.  This is useful because it removes the need to either use multiple input files or edit a single file, both of which are extremely prone to human error.  The multiple input deck capability also gives many different spots to restart a simulation, as long as it was not merged along the way.
+
+When there are multiple input decks in one file, they are read sequentially. However, if the first deck is in Standard Mode or in Automatic Mode, it must be kept at the bottom.  This is because these decks contain the initial conditions of the problem and are consequently much longer.  After this first read, though, the input pointer returns to the top of the file and works its way down.
+
+For runs \underline{not} taking advantage of the Automatic Mode, using multiple input decks in one file behaves as if there were N input files read one at a time.  This means that mstart can only be equal to: 0, 1, and 10.  This protocol refers to having one Standard Mode Run, followed by any number of Restarts and Merges given in any order.
+
+When Automatic Mode is used with multiple input decks, restarts can take advanced savings in storage space, speed, and human error.  This is increasingly true for longer simulations and larger input files where early cycles become decreasingly important. 
+
+To use Automatic Mode with multiple input decks, set all input decks that are no longer the focus of interest to Automatic Mode.  This must include the initial Standard Mode run and continue until the first Restart Mode.  It is important to note that after transitioning from Automatic Mode to Restarts and Merges, there is no going back.  For this mode, mstart can only be equal to: 2, 1, and 10.

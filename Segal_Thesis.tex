@@ -1,0 +1,108 @@
+%!TEX TS-program = pdflatex
+% Segal_Thesis.tex -- main dissertation file
+
+\documentclass[12pt,oneside,letterpaper]{memoir}
+
+\usepackage{tocloft}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{sidecap}
+\usepackage{wrapfig}
+
+\setlength{\parskip}{.1in}
+\setlength{\intextsep}{20pt}
+\setlength{\belowcaptionskip}{-12pt} 
+%\setlength{\textfloatsep}{100pt} 
+%\setlength{\fboxrule}{100}
+
+\usepackage[top=1.25in, bottom=1in, left=1.25in, right=1in]{geometry}
+
+\makeatletter
+\renewcommand*\l@chapter{\@dottedtocline{1}{1.em}{2.4em}}
+\renewcommand*\l@section{\@dottedtocline{1}{1.8em}{2.4em}}
+\renewcommand*\l@appendix{\@dottedtocline{1}{1.em}{2.4em}}
+\renewcommand*{\printchapternonum}{\chapnumfont \thechapter}
+\makeatother 
+
+\input{includes/preamble}
+\input{includes/defs}
+\input{includes/thesisdefs}
+
+\svnidlong{$LastChangedBy$}{$LastChangedRevision$}{$LastChangedDate$}{$HeadURL: http://freevariable.com/dissertation/branches/diss-template/dissertation.tex $} 
+
+\clearpage\pagenumbering{roman}  % This makes the page numbers Roman (i, ii, etc)
+
+\title{AHAB \\ --- OR --- \\ The Hunt for Automated Shock Timing}
+\author{Daniel J. Segal}
+\department{Engineering Physics}
+
+\oralexamdate{8/22/14}
+\date{2014}
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+
+\begin{document}
+
+	\addtocontents{toc}{\protect\setstretch{1.8}}
+	\captionnamefont{\bfseries}
+	\captiontitlefont{\bfseries}
+
+	\newgeometry{left=1.25in,right=1.25in,bottom=1.25in,top=1.25in}
+	\maketitle
+	\restoregeometry %sets the margins back to normal
+
+	\include{frontmatter/frontmatter}
+	%\frontmatter
+
+	%\include{mainmatter/mainmatter}
+	%\mainmatter
+
+	\begingroup
+
+		\midsloppy
+		\let\clearpage\relax
+		\setlength{\parindent}{0cm}
+		\input{body/intro}
+		\input{body/shock}
+		\input{body/bucky}
+		\input{body/ahab}
+		\input{body/concl}
+		\setlength{\parindent}{\default}
+	
+	\endgroup
+  
+	\addtocontents{toc}{\protect\vspace{20pt}}
+
+	\begin{appendices}
+	
+  		\setlength{\parindent}{0cm}
+ 		\include{body/rtt}
+  		\include{body/restart}
+ 		\setlength{\parindent}{\default}
+ 		
+ 	\end{appendices}
+
+	\include{backmatter/backmatter}
+	\backmatter
+
+	\bibliographystyle{IEEEtran}
+	\bibliography{IEEEabrv,references}
+
+\end{document}
+
+
+\pagebreak
+\vspace*{\fill}
+\vspace{-32pt}
+\centering{
+	\large{
+	\bf{
+		\texttt{
+			This page intentionally left blank.
+}}}}
+\vspace*{\fill}
+

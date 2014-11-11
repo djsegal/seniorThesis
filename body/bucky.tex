@@ -1,0 +1,37 @@
+%\let\uppercase\relax
+
+\vspace{24pt}
+
+\chapter[\textbf{Modeling Shock Ignition}]{Modeling Shock Ignition}
+
+Before shock ignition experiments can be conducted at research facilities, such as the National Ignition Facility, the algorithm used for tuning the involved laser profiles needs to be both efficient and robust.  It needs to be efficient because each experiment involved in an actual tuning process requires more than a hundred simulations \citep{terryThesis}.  It needs to be robust because the output from the simulations needs to transfer to successfully timed experiments without too much calibration \citep{terryPaper}.  
+
+In this paper, simulations were run on Bucky -- a one-dimensional radiation-hydrodynamics code written by Prof.\ Gregory Moses.  Because many simulations were needed, several assumptions were made to reduce their individual runtimes.  These assumptions were made because they did not significantly increase the numerical error of relevant quantities. 
+
+\section{Using Bucky: A One-Dimensional Radiation-Hydrodynamics Code}
+  
+Bucky is a one-dimensional, Lagrangian, radiation-hydrodynamics code that models plasmas that can be classified as high temperature and high density.  Here, radiation-hydrodynamics refers to the tight coupling that Bucky assumes exists between the radiation and the hydrodynamics for its problems' energy conservation equations \citep{bucky}.
+
+The next term, Lagrangian, describes how mass is always conserved inside a zone and its boundaries are what fluctuate.  This is analogous to the distortion that would occur to cross-hatched lines drawn on a slab of stretched rubber.  
+
+Bucky's final descriptor as a one-dimensional code refers to the fact that it only accounts for one spatial dimension in addition to its temporal one. Although one-dimensional codes are the most simplistic, three-dimensional codes are the most realistic because they simulate the space in which humans actually exist. This initial comparison does not do Bucky justice, though. Some physical phenomena can be modeled in certain coordinate systems (e.g. Cartesian, spherical, and cylindrical) to take advantage of inherent geometric symmetries. 
+
+\pagebreak
+
+Because inertial confinement fusion involves a spherically symmetric target, it can be modeled in the spherical coordinate system.  Additionally, because the target is ideally compressed isentropically -- in a uniform way with the least amount of work -- the problem should not initially depend on angle. Because two of the dimensions involved with the spherical coordinate system are angles -- the azimuthal angle and the polar angle -- the problem can be reduced to one-dimension: the radius \citep{mosesBook}.  
+
+This one-dimensional nature does, however, prevent Bucky from directly studying the higher dimensional effects of instabilities and turbulence; it is therefore best used for simulating the early stages of inertial confinement fusion.  This restriction does not completely preclude Bucky from investigating instabilities, though.  Several parameters exist than can provide guidance when transitioning output to higher dimensional codes and, even, to actual experimental shots. These parameters include the peak implosion velocity and the convergence ratio of the target's initial radius to its smallest radius \citep{perkinsPaper}.
+
+In addition to being markedly simpler than three-dimensional codes, one-dimensional codes are also much quicker.  Where a three-dimensional code might take weeks to finish a simulation, a one-dimensional one might take hours.  This allows Bucky to run tests that would not be possible on higher dimensional codes.  
+
+\section{Asserting Appropriate Approximations}
+
+To time shocks using Bucky, it is essential to streamline the process as much as possible by using several well-chosen approximations.  Most of these approximations stem from the fact that only a short amount of time is spent at high laser powers and that this time occurs at the end of laser profiles.  The most prolific approximation that arises from this is that simulations only require conventional radiation-hydrodynamics \citep{perkinsPaper}.
+
+For Bucky, use of conventional radiation-hydrodynamics manifests itself in being able to ignore two radiation effects: transport and preheat. Omitting radiation transport reduces the number of solved equations, decreasing runtimes by more than a third. Disregarding radiation preheat allows the laser profile to be constructed iteratively \citep{terryThesis}.
+
+The ability to construct laser profiles iteratively allows for a very systematic approach to be taken.  The essence of this approach is to mate optimized laser pulses with a set of target designs subject to maximum laser power and energy constraints \citep{perkinsPaper}.  
+
+This construction process can be further simplified by imposing a piecewise linear scheme for the pulses.  If suitable laser powers and durations are then given, the problem reduces to simply timing each laser pulse's beginning.   
+
+The last major approximation applied for shock ignition is turning off the thermonuclear burn.  Although this particular approximation reduces the accuracy of the simulation, its significant effect on runtime justifies its use.  For Bucky, runtimes receive a factor of six reduction, dropping them from nearly two hours to just under twenty minutes.  Combined with the other approximations, runtimes of around ten minutes are achievable \citep{terryThesis}.
